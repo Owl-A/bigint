@@ -1,6 +1,5 @@
 #include <bits/stdc++.h>
 #include "bigint.h"
-
 // utils
 
 void reverse(lst** head){
@@ -36,31 +35,28 @@ bigint::bigint(unsigned long long a){
   reverse(&head);
 }
 
-#if 0
 bigint::~bigint(){
   lst* p = this->head;
+  this->head = NULL;
   while(p){
     lst* nxt = p->next;
     free(p);
     p = nxt;
   }  
 }
-#endif
 
 // Equals
 
 lst* eqhelper(lst* b){
   if(b == NULL) return NULL;
-  if(b->next == NULL) {
-    lst* t = (lst*)malloc(sizeof(lst));
-    t->next = NULL;
-    t->val = b->val;
-    return t;
-  }
   lst* t = (lst*)malloc(sizeof(lst));
   t->val = b->val;
   t->next = eqhelper(b->next);
   return t;
+}
+
+bigint::bigint (const bigint& b){
+  this->head = eqhelper(b.head);
 }
 
 const bigint& bigint::operator= (const bigint& b){
@@ -270,5 +266,6 @@ std::ostream& operator<< (std::ostream& os, const bigint& b){
     os << a[0] << a[1] << a[2] << a[3];
     p = p->next;
   }
+  reverse(&tmp.head);
   return os;
 }

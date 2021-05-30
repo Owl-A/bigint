@@ -14,8 +14,9 @@ class bigint{
   lst* head;
 public:
   bigint();
-  //~bigint();
+  ~bigint();
   bigint(unsigned long long a);
+  bigint(const bigint& a);
 
   const bigint& operator= (const bigint& b);
   const bigint& operator= (unsigned long long b);
