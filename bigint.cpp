@@ -266,6 +266,5 @@ std::ostream& operator<< (std::ostream& os, const bigint& b){
     os << a[0] << a[1] << a[2] << a[3];
     p = p->next;
   }
-  reverse(&tmp.head);
   return os;
 }
