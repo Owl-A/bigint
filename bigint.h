@@ -1,9 +1,9 @@
 #ifndef BIGINT_H
 #define BIGINT_H
 
-#define uint32 unsigned int 
-#define MAX_LST 65535
-#define MAX_BIT 16
+#define uint32 unsigned long long 
+#define MAX_LST 4294967295
+#define MAX_BIT 32
 
 struct lst{
   lst* next;
