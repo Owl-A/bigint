@@ -27,6 +27,9 @@ public:
   bigint operator- (const bigint& b);
   bigint operator- (unsigned long long b);
 
+  bigint operator* (const bigint& b);
+  bigint operator* (unsigned long long b);
+
   bool operator< (const bigint& b);
   bool operator< (unsigned long long b);
   
@@ -35,6 +38,7 @@ public:
 
   friend bigint operator+ (unsigned long long a, bigint & b);
   friend bigint operator- (unsigned long long a, bigint & b);
+  friend bigint operator* (unsigned long long a, bigint & b);
   friend bool operator< (unsigned long long a, bigint & b);
   friend bool operator== (unsigned long long a, bigint & b);
   friend std::ostream& operator<< (std::ostream& os, const bigint& b);
@@ -43,6 +47,7 @@ public:
 
 bigint operator+ (unsigned long long a, bigint & b);
 bigint operator- (unsigned long long a, bigint & b);
+bigint operator* (unsigned long long a, bigint & b);
 bool operator< (unsigned long long a, bigint & b);
 bool operator== (unsigned long long a, bigint & b);
 std::ostream& operator<< (std::ostream& os, const bigint& b);

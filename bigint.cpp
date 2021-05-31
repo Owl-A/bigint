@@ -20,7 +20,19 @@ bigint::bigint(){
   head = NULL;
 }
 
+lst* eqhelper(lst* b){
+  if(b == NULL) return NULL;
+  lst* t = (lst*)malloc(sizeof(lst));
+  t->val = b->val;
+  t->next = eqhelper(b->next);
+  return t;
+}
+
 // Constructor-Destructor
+
+bigint::bigint (const bigint& b){
+  this->head = eqhelper(b.head);
+}
 
 bigint::bigint(unsigned long long a){
   head = NULL;
@@ -46,18 +58,6 @@ bigint::~bigint(){
 }
 
 // Equals
-
-lst* eqhelper(lst* b){
-  if(b == NULL) return NULL;
-  lst* t = (lst*)malloc(sizeof(lst));
-  t->val = b->val;
-  t->next = eqhelper(b->next);
-  return t;
-}
-
-bigint::bigint (const bigint& b){
-  this->head = eqhelper(b.head);
-}
 
 const bigint& bigint::operator= (const bigint& b){
   lst* p = this->head;
@@ -196,7 +196,7 @@ void borrow(lst* a){
 void subhelper( lst* a, lst* b){
   if(!b) return;
   if((a)->val < b->val){
-    a->val |= 1 << MAX_BIT;
+    a->val |= (unsigned long long)1 << MAX_BIT;
     a->val -= b->val;
     borrow(a->next);
   }else{
@@ -232,7 +232,7 @@ bigint operator- (unsigned long long a, bigint & b){
   return tmp - b;
 }
 
-// Debug
+// print 
 
 const char* toHex = "0123456789abcdef";
 
@@ -245,26 +245,93 @@ std::ostream& operator<< (std::ostream& os, const bigint& b){
     os << 0;
     return os;
   }
-  char a[4];
-  a[0] = toHex[(p->val & 0xf000) >> 12];
-  a[1] = toHex[(p->val & 0x0f00) >> 8];
-  a[2] = toHex[(p->val & 0x00f0) >> 4];
-  a[3] = toHex[(p->val & 0x000f)];
   bool state = false;
-  for(int i = 0; i < 4; i++){
-    if(a[i] != '0') state = true;
+  for(int i = MAX_BIT-4; i >= 0; i -= 4){
+    char tmp = toHex[(p->val >> i) & 0xf];
+    if(tmp != '0') state = true;
     if(state){
-      os << a[i];
+      os << tmp;
     }
   }
   p = p->next;
   while(p){
-    a[0] = toHex[(p->val & 0xf000) >> 12];
-    a[1] = toHex[(p->val & 0x0f00) >> 8];
-    a[2] = toHex[(p->val & 0x00f0) >> 4];
-    a[3] = toHex[(p->val & 0x000f)];
-    os << a[0] << a[1] << a[2] << a[3];
+    for(int i = MAX_BIT - 4 ; i >= 0; i -= 4){
+      os << toHex[(p->val >> i) & 0xf];
+    }
     p = p->next;
   }
   return os;
+}
+
+// multiply
+// Currently uses gradeschool multiplcation
+// so very slow
+
+void multone(uint32 a, lst** b){
+  // a < (1 << MAX_BIT)
+  if(a == 0){
+    lst* p = *b;
+    while(p){
+      lst* nxt = p->next;
+      free(p);
+      p = nxt;
+    }
+    *b = NULL;
+    return;
+  }
+  lst* p = *b;
+  while(p){
+    p->val *= a;
+    p = p->next;
+  }
+  uint32 carry = 0;
+  p = *b;
+  lst* d = NULL;
+  while(p){
+    p->val += carry;
+    carry = p->val >> MAX_BIT;
+    p->val &= MAX_LST; 
+    d = p;
+    p = p->next;
+  }
+  if(carry){
+    lst* z = (lst*) malloc(sizeof(lst));
+    z->val = carry;
+    z->next = NULL;
+    d->next = z;
+  }
+}
+
+void shiftdigit(uint32 count, lst** b){
+  while(count--){
+    lst* p = (lst*) malloc(sizeof(lst));
+    p->val = 0;
+    p->next = *b;
+    *b = p;
+  }
+}
+
+bigint bigint::operator* (const bigint& b){
+  bigint tmp, res;
+  lst* p = head;
+  uint32 offset = 0;
+  while(p){
+    tmp = b;  
+    shiftdigit(offset, &tmp.head);
+    multone(p->val, &tmp.head);
+    res = res + tmp;
+    offset++; 
+    p = p->next;
+  }
+  return res;
+}
+
+bigint bigint::operator* (unsigned long long b){
+  bigint tmp(b);
+  return tmp * (*this);
+}
+
+bigint operator* (unsigned long long a, bigint & b){
+  bigint tmp(a);
+  return tmp * b;
 }
